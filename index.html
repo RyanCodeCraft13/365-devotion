@@ -21,16 +21,8 @@ body{
   padding:25px;
 }
 
-h1{
-  text-align:center;
-  font-weight:300;
-}
-
-.subtitle{
-  text-align:center;
-  opacity:0.8;
-  margin-bottom:25px;
-}
+h1{text-align:center;font-weight:300}
+.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
 
 .card{
   background:rgba(255,255,255,0.08);
@@ -40,23 +32,29 @@ h1{
   backdrop-filter:blur(10px);
 }
 
-.verse{
-  font-size:18px;
+.datetime{
   text-align:center;
+  font-size:18px;
   line-height:1.6;
+}
+
+.verse{
+  text-align:center;
+  font-size:18px;
   font-style:italic;
+  line-height:1.6;
 }
 
 .verse span{
   display:block;
-  margin-top:10px;
+  margin-top:8px;
   font-size:14px;
-  opacity:0.8;
+  opacity:.8;
 }
 
 .counter{
-  font-size:26px;
   text-align:center;
+  font-size:26px;
   margin-top:10px;
 }
 
@@ -102,7 +100,7 @@ button{
 footer{
   text-align:center;
   font-size:13px;
-  opacity:0.7;
+  opacity:.7;
   margin-top:40px;
 }
 </style>
@@ -113,7 +111,12 @@ footer{
 <div class="container">
 
 <h1>🙏 365 Days of Devotion & Prayer</h1>
-<p class="subtitle">A daily walk with God</p>
+<p class="subtitle">A real-time daily walk with God</p>
+
+<!-- REAL DATE & TIME -->
+<div class="card">
+  <div class="datetime" id="dateTime"></div>
+</div>
 
 <!-- VERSE OF THE DAY -->
 <div class="card">
@@ -132,14 +135,14 @@ footer{
 <!-- DEVOTION -->
 <div class="card">
   <h2>📖 Devotion</h2>
-  <textarea id="devotion" placeholder="Write your reflection or S.O.A.P devotion..."></textarea>
+  <textarea id="devotion" placeholder="Write today’s devotion or S.O.A.P reflection..."></textarea>
   <button onclick="saveDevotion()">Save Devotion</button>
 </div>
 
 <!-- PRAYER -->
 <div class="card">
   <h2>🙏 Prayer</h2>
-  <textarea id="prayer" placeholder="Write your prayer today..."></textarea>
+  <textarea id="prayer" placeholder="Write your prayer for today..."></textarea>
   <button onclick="savePrayer()">Save Prayer</button>
 </div>
 
@@ -158,46 +161,60 @@ footer{
 </div>
 
 <script>
-// 🔧 CHANGE START DATE
+// 🔧 SET YOUR START DATE (FIRST DAY OF DEVOTION)
 const startDate = new Date("2026-01-01");
+
+// VERSES
+const verses = [
+ {text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5"},
+ {text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1"},
+ {text:"Trust in the Lord with all your heart.", ref:"Proverbs 3:5"},
+ {text:"Be still, and know that I am God.", ref:"Psalm 46:10"},
+ {text:"I can do all things through Christ.", ref:"Philippians 4:13"},
+ {text:"The Lord is near to the brokenhearted.", ref:"Psalm 34:18"},
+ {text:"For I know the plans I have for you.", ref:"Jeremiah 29:11"}
+];
+
+// REAL-TIME CLOCK
+function updateDateTime(){
+  const now = new Date();
+  document.getElementById("dateTime").innerText =
+    now.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+    + " • " +
+    now.toLocaleTimeString();
+}
+setInterval(updateDateTime,1000);
+updateDateTime();
+
+// DAY COUNT
 const today = new Date();
 let day = Math.floor((today - startDate) / (1000*60*60*24)) + 1;
 if(day < 1) day = 1;
 if(day > 365) day = 365;
 
-// DAY DISPLAY
+// DISPLAY DAY
 document.getElementById("dayCounter").innerText = `Day ${day} of 365`;
-document.getElementById("progress").style.width = (day/365*100) + "%";
+document.getElementById("progress").style.width = (day/365*100)+"%";
 
-// VERSES ARRAY (ADD MORE ANYTIME)
-const verses = [
-  {text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5"},
-  {text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1"},
-  {text:"I can do all things through Christ who strengthens me.", ref:"Philippians 4:13"},
-  {text:"Be still, and know that I am God.", ref:"Psalm 46:10"},
-  {text:"Trust in the Lord with all your heart.", ref:"Proverbs 3:5"},
-  {text:"The Lord is near to the brokenhearted.", ref:"Psalm 34:18"},
-  {text:"For I know the plans I have for you, declares the Lord.", ref:"Jeremiah 29:11"}
-];
-
-// ROTATE VERSE BY DAY
+// VERSE BY REAL DAY
 const verse = verses[(day-1) % verses.length];
 document.getElementById("verseText").innerHTML =
-  `"${verse.text}"<span>— ${verse.ref}</span>`;
+ `"${verse.text}"<span>— ${verse.ref}</span>`;
 
-// LOAD SAVED DATA
-document.getElementById("devotion").value =
-  localStorage.getItem("devotion-"+day) || "";
-document.getElementById("prayer").value =
-  localStorage.getItem("prayer-"+day) || "";
+// STORAGE KEY BASED ON REAL DATE
+const dateKey = today.toISOString().split("T")[0];
 
-// SAVE FUNCTIONS
+// LOAD SAVED
+devotion.value = localStorage.getItem("devotion-"+dateKey) || "";
+prayer.value   = localStorage.getItem("prayer-"+dateKey) || "";
+
+// SAVE
 function saveDevotion(){
-  localStorage.setItem("devotion-"+day, devotion.value);
+  localStorage.setItem("devotion-"+dateKey, devotion.value);
   alert("Devotion saved 🙏");
 }
 function savePrayer(){
-  localStorage.setItem("prayer-"+day, prayer.value);
+  localStorage.setItem("prayer-"+dateKey, prayer.value);
   alert("Prayer saved 🙏");
 }
 </script>
