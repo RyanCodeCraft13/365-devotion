@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>365 Days of Devotion & Prayer</title>
+<title>365 Days Devotion & Prayer</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -97,6 +97,18 @@ button{
 
 .music{text-align:center}
 
+.previous-devotions{
+  max-height:250px;
+  overflow-y:auto;
+}
+
+.previous-devotions .day-card{
+  background:rgba(255,255,255,0.05);
+  margin-bottom:12px;
+  padding:10px;
+  border-radius:10px;
+}
+
 footer{
   text-align:center;
   font-size:13px;
@@ -111,7 +123,7 @@ footer{
 <div class="container">
 
 <h1>🙏 365 Days of Devotion & Prayer</h1>
-<p class="subtitle">A real-time daily walk with God</p>
+<p class="subtitle">Real-time daily walk with God</p>
 
 <!-- REAL DATE & TIME -->
 <div class="card">
@@ -142,8 +154,14 @@ footer{
 <!-- PRAYER -->
 <div class="card">
   <h2>🙏 Prayer</h2>
-  <textarea id="prayer" placeholder="Write your prayer for today..."></textarea>
+  <textarea id="prayer" placeholder="Write your prayer today..."></textarea>
   <button onclick="savePrayer()">Save Prayer</button>
+</div>
+
+<!-- PREVIOUS DEVOTIONS -->
+<div class="card">
+  <h2>📚 Previous Devotions</h2>
+  <div class="previous-devotions" id="prevDevotions"></div>
 </div>
 
 <!-- MUSIC -->
@@ -161,62 +179,85 @@ footer{
 </div>
 
 <script>
-// 🔧 SET YOUR START DATE (FIRST DAY OF DEVOTION)
+// 🔧 START DATE
 const startDate = new Date("2026-01-01");
-
-// VERSES
-const verses = [
- {text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5"},
- {text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1"},
- {text:"Trust in the Lord with all your heart.", ref:"Proverbs 3:5"},
- {text:"Be still, and know that I am God.", ref:"Psalm 46:10"},
- {text:"I can do all things through Christ.", ref:"Philippians 4:13"},
- {text:"The Lord is near to the brokenhearted.", ref:"Psalm 34:18"},
- {text:"For I know the plans I have for you.", ref:"Jeremiah 29:11"}
-];
 
 // REAL-TIME CLOCK
 function updateDateTime(){
   const now = new Date();
   document.getElementById("dateTime").innerText =
     now.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'})
-    + " • " +
-    now.toLocaleTimeString();
+    + " • " + now.toLocaleTimeString();
 }
 setInterval(updateDateTime,1000);
 updateDateTime();
 
-// DAY COUNT
+// CALCULATE DAY
 const today = new Date();
-let day = Math.floor((today - startDate) / (1000*60*60*24)) + 1;
-if(day < 1) day = 1;
-if(day > 365) day = 365;
+let day = Math.floor((today - startDate)/(1000*60*60*24)) +1;
+if(day<1) day=1;
+if(day>365) day=365;
 
 // DISPLAY DAY
 document.getElementById("dayCounter").innerText = `Day ${day} of 365`;
 document.getElementById("progress").style.width = (day/365*100)+"%";
 
-// VERSE BY REAL DAY
-const verse = verses[(day-1) % verses.length];
-document.getElementById("verseText").innerHTML =
- `"${verse.text}"<span>— ${verse.ref}</span>`;
+// 365 VERSES ARRAY (Day 1–365)
+const verses = [
+{ text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5" },
+{ text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1" },
+{ text:"I can do all things through Christ who strengthens me.", ref:"Philippians 4:13" },
+{ text:"Be still, and know that I am God.", ref:"Psalm 46:10" },
+{ text:"Trust in the Lord with all your heart.", ref:"Proverbs 3:5" },
+{ text:"The Lord is near to the brokenhearted.", ref:"Psalm 34:18" },
+{ text:"For I know the plans I have for you, declares the Lord.", ref:"Jeremiah 29:11" },
+// --- ADD MORE UNTIL 365 ---
+];
 
-// STORAGE KEY BASED ON REAL DATE
+// If fewer than 365, repeat the array
+while(verses.length<365){
+  verses.push(...verses);
+}
+const verse = verses[(day-1)%365];
+document.getElementById("verseText").innerHTML = `"${verse.text}"<span>— ${verse.ref}</span>`;
+
+// STORAGE KEY BASED ON DATE
 const dateKey = today.toISOString().split("T")[0];
 
-// LOAD SAVED
+// LOAD CURRENT
 devotion.value = localStorage.getItem("devotion-"+dateKey) || "";
 prayer.value   = localStorage.getItem("prayer-"+dateKey) || "";
 
-// SAVE
+// SAVE FUNCTIONS
 function saveDevotion(){
   localStorage.setItem("devotion-"+dateKey, devotion.value);
   alert("Devotion saved 🙏");
+  loadPrevious();
 }
 function savePrayer(){
   localStorage.setItem("prayer-"+dateKey, prayer.value);
   alert("Prayer saved 🙏");
+  loadPrevious();
 }
+
+// LOAD ALL PREVIOUS DEVOTIONS
+function loadPrevious(){
+  const container = document.getElementById("prevDevotions");
+  container.innerHTML = "";
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith("devotion-")).sort().reverse();
+  for(let k of keys){
+    const date = k.replace("devotion-","");
+    const devotionText = localStorage.getItem(k);
+    const prayerText = localStorage.getItem("prayer-"+date) || "";
+    const div = document.createElement("div");
+    div.className = "day-card";
+    div.innerHTML = `<strong>${date}</strong><br>📖 Devotion: ${devotionText}<br>🙏 Prayer: ${prayerText}`;
+    container.appendChild(div);
+  }
+}
+
+// INITIAL LOAD
+loadPrevious();
 </script>
 
 </body>
