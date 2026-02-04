@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>365 Days Devotion & Prayer</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  min-height:100vh;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:30px;
+}
+
+h1,h2{
+  text-align:center;
+  font-weight:300;
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  padding:20px;
+  border-radius:15px;
+  margin:20px 0;
+  backdrop-filter:blur(10px);
+}
+
+.counter{
+  font-size:26px;
+  text-align:center;
+  margin-top:10px;
+}
+
+textarea{
+  width:100%;
+  min-height:120px;
+  background:rgba(0,0,0,0.3);
+  border:none;
+  border-radius:10px;
+  padding:15px;
+  color:#fff;
+  font-size:16px;
+}
+
+button{
+  margin-top:15px;
+  padding:12px 20px;
+  background:#ffd700;
+  border:none;
+  border-radius:25px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.music{
+  text-align:center;
+  margin-top:30px;
+}
+
+footer{
+  text-align:center;
+  font-size:13px;
+  opacity:0.7;
+  margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🙏 365 Days of Devotion & Prayer</h1>
+  <p style="text-align:center;">A personal walk with God</p>
+
+  <div class="card">
+    <h2>📅 Live Devotion Day</h2>
+    <div class="counter" id="dayCounter"></div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Scripture / Reflection</h2>
+    <textarea id="devotion" placeholder="Write today’s devotion..."></textarea>
+    <button onclick="saveDevotion()">Save Devotion</button>
+  </div>
+
+  <div class="card">
+    <h2>🙏 Prayer</h2>
+    <textarea id="prayer" placeholder="Write today’s prayer..."></textarea>
+    <button onclick="savePrayer()">Save Prayer</button>
+  </div>
+
+  <div class="card music">
+    <h2>🎶 Worship Music</h2>
+    <audio controls loop>
+      <source src="music.mp3" type="audio/mpeg">
+      Your browser does not support audio.
+    </audio>
+    <p style="font-size:13px;">Upload your worship music as <b>music.mp3</b></p>
+  </div>
+
+  <footer>
+    <p>“Be still, and know that I am God.” – Psalm 46:10</p>
+    <p>© 2026 | Devotion Journal</p>
+  </footer>
+</div>
+
+<script>
+// START DATE (change this to your first devotion day)
+const startDate = new Date("2026-01-01");
+const today = new Date();
+const diffTime = today - startDate;
+const day = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+document.getElementById("dayCounter").innerText =
+  day <= 365 ? `Day ${day} of 365` : "🎉 365 Days Completed!";
+
+// Load saved text
+document.getElementById("devotion").value =
+  localStorage.getItem("devotion-"+day) || "";
+
+document.getElementById("prayer").value =
+  localStorage.getItem("prayer-"+day) || "";
+
+function saveDevotion(){
+  localStorage.setItem("devotion-"+day,
+    document.getElementById("devotion").value);
+  alert("Devotion saved 🙏");
+}
+
+function savePrayer(){
+  localStorage.setItem("prayer-"+day,
+    document.getElementById("prayer").value);
+  alert("Prayer saved 🙏");
+}
+</script>
+
+</body>
+</html>
