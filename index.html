@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>365 Days Devotion & Prayer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>365 Days of Devotion & Prayer</title>
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box}
+
 body{
-  margin:0;
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
@@ -16,20 +18,40 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:30px;
+  padding:25px;
 }
 
-h1,h2{
+h1{
   text-align:center;
   font-weight:300;
+}
+
+.subtitle{
+  text-align:center;
+  opacity:0.8;
+  margin-bottom:25px;
 }
 
 .card{
   background:rgba(255,255,255,0.08);
   padding:20px;
-  border-radius:15px;
-  margin:20px 0;
+  border-radius:16px;
+  margin-bottom:25px;
   backdrop-filter:blur(10px);
+}
+
+.verse{
+  font-size:18px;
+  text-align:center;
+  line-height:1.6;
+  font-style:italic;
+}
+
+.verse span{
+  display:block;
+  margin-top:10px;
+  font-size:14px;
+  opacity:0.8;
 }
 
 .counter{
@@ -38,35 +60,44 @@ h1,h2{
   margin-top:10px;
 }
 
+.progress-bar{
+  width:100%;
+  height:12px;
+  background:rgba(255,255,255,0.2);
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+.progress{
+  height:100%;
+  background:#f1c40f;
+  width:0%;
+}
+
 textarea{
   width:100%;
-  min-height:120px;
-  background:rgba(0,0,0,0.3);
+  min-height:140px;
+  background:rgba(0,0,0,0.35);
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   padding:15px;
   color:#fff;
   font-size:16px;
+  resize:none;
 }
 
 button{
   margin-top:15px;
-  padding:12px 20px;
-  background:#ffd700;
+  padding:12px 22px;
+  background:#f1c40f;
   border:none;
-  border-radius:25px;
+  border-radius:30px;
   cursor:pointer;
-  font-size:16px;
+  font-size:15px;
 }
 
-button:hover{
-  opacity:0.9;
-}
-
-.music{
-  text-align:center;
-  margin-top:30px;
-}
+.music{text-align:center}
 
 footer{
   text-align:center;
@@ -80,71 +111,96 @@ footer{
 <body>
 
 <div class="container">
-  <h1>🙏 365 Days of Devotion & Prayer</h1>
-  <p style="text-align:center;">A personal walk with God</p>
 
-  <div class="card">
-    <h2>📅 Live Devotion Day</h2>
-    <div class="counter" id="dayCounter"></div>
+<h1>🙏 365 Days of Devotion & Prayer</h1>
+<p class="subtitle">A daily walk with God</p>
+
+<!-- VERSE OF THE DAY -->
+<div class="card">
+  <div class="verse" id="verseText"></div>
+</div>
+
+<!-- DAY COUNTER -->
+<div class="card">
+  <h2>📅 Devotion Progress</h2>
+  <div class="counter" id="dayCounter"></div>
+  <div class="progress-bar">
+    <div class="progress" id="progress"></div>
   </div>
+</div>
 
-  <div class="card">
-    <h2>📖 Scripture / Reflection</h2>
-    <textarea id="devotion" placeholder="Write today’s devotion..."></textarea>
-    <button onclick="saveDevotion()">Save Devotion</button>
-  </div>
+<!-- DEVOTION -->
+<div class="card">
+  <h2>📖 Devotion</h2>
+  <textarea id="devotion" placeholder="Write your reflection or S.O.A.P devotion..."></textarea>
+  <button onclick="saveDevotion()">Save Devotion</button>
+</div>
 
-  <div class="card">
-    <h2>🙏 Prayer</h2>
-    <textarea id="prayer" placeholder="Write today’s prayer..."></textarea>
-    <button onclick="savePrayer()">Save Prayer</button>
-  </div>
+<!-- PRAYER -->
+<div class="card">
+  <h2>🙏 Prayer</h2>
+  <textarea id="prayer" placeholder="Write your prayer today..."></textarea>
+  <button onclick="savePrayer()">Save Prayer</button>
+</div>
 
-  <div class="card music">
-    <h2>🎶 Worship Music</h2>
-    <audio controls loop>
-      <source src="music.mp3" type="audio/mpeg">
-      Your browser does not support audio.
-    </audio>
-    <p style="font-size:13px;">Upload your worship music as <b>music.mp3</b></p>
-  </div>
+<!-- MUSIC -->
+<div class="card music">
+  <h2>🎶 Worship Music</h2>
+  <audio controls loop>
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+</div>
 
-  <footer>
-    <p>“Be still, and know that I am God.” – Psalm 46:10</p>
-    <p>© 2026 | Devotion Journal</p>
-  </footer>
+<footer>
+  <p>“Be still, and know that I am God.” – Psalm 46:10</p>
+</footer>
+
 </div>
 
 <script>
-// START DATE (change this to your first devotion day)
+// 🔧 CHANGE START DATE
 const startDate = new Date("2026-01-01");
 const today = new Date();
-const diffTime = today - startDate;
-const day = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+let day = Math.floor((today - startDate) / (1000*60*60*24)) + 1;
+if(day < 1) day = 1;
+if(day > 365) day = 365;
 
-document.getElementById("dayCounter").innerText =
-  day <= 365 ? `Day ${day} of 365` : "🎉 365 Days Completed!";
+// DAY DISPLAY
+document.getElementById("dayCounter").innerText = `Day ${day} of 365`;
+document.getElementById("progress").style.width = (day/365*100) + "%";
 
-// Load saved text
+// VERSES ARRAY (ADD MORE ANYTIME)
+const verses = [
+  {text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5"},
+  {text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1"},
+  {text:"I can do all things through Christ who strengthens me.", ref:"Philippians 4:13"},
+  {text:"Be still, and know that I am God.", ref:"Psalm 46:10"},
+  {text:"Trust in the Lord with all your heart.", ref:"Proverbs 3:5"},
+  {text:"The Lord is near to the brokenhearted.", ref:"Psalm 34:18"},
+  {text:"For I know the plans I have for you, declares the Lord.", ref:"Jeremiah 29:11"}
+];
+
+// ROTATE VERSE BY DAY
+const verse = verses[(day-1) % verses.length];
+document.getElementById("verseText").innerHTML =
+  `"${verse.text}"<span>— ${verse.ref}</span>`;
+
+// LOAD SAVED DATA
 document.getElementById("devotion").value =
   localStorage.getItem("devotion-"+day) || "";
-
 document.getElementById("prayer").value =
   localStorage.getItem("prayer-"+day) || "";
 
+// SAVE FUNCTIONS
 function saveDevotion(){
-  localStorage.setItem("devotion-"+day,
-    document.getElementById("devotion").value);
+  localStorage.setItem("devotion-"+day, devotion.value);
   alert("Devotion saved 🙏");
 }
-
 function savePrayer(){
-  localStorage.setItem("prayer-"+day,
-    document.getElementById("prayer").value);
+  localStorage.setItem("prayer-"+day, prayer.value);
   alert("Prayer saved 🙏");
 }
 </script>
 
 </body>
 </html>
-
