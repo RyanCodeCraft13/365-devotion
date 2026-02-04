@@ -179,13 +179,12 @@ footer{
 <div class="card">
   <h2>📖 Devotion</h2>
   <textarea id="devotion" placeholder="Write today’s devotion or S.O.A.P reflection..."></textarea>
-  <button onclick="saveDevotion()">Save Devotion</button>
+  <button onclick="saveCurrent()">Save / Update Devotion</button>
 </div>
 
 <div class="card">
   <h2>🙏 Prayer</h2>
   <textarea id="prayer" placeholder="Write your prayer today..."></textarea>
-  <button onclick="savePrayer()">Save Prayer</button>
 </div>
 
 <!-- CALENDAR -->
@@ -205,7 +204,7 @@ footer{
 <div class="card">
   <h2>📚 Selected Day Devotion</h2>
   <div class="previous-devotions" id="prevDevotions">
-    Click a day to view devotion & prayer.
+    Click a day to view & edit devotion & prayer.
   </div>
 </div>
 
@@ -265,25 +264,25 @@ document.getElementById("progress").style.width = (day/365*100)+"%";
 // DISPLAY VERSE OF THE DAY
 document.getElementById("verseText").innerHTML = `"${verses[(day-1)%365].text}"<span>— ${verses[(day-1)%365].ref}</span>`;
 
-// STORAGE KEY
-const dateKey = today.toISOString().split("T")[0];
+// CURRENT DATE KEY
+let currentKey = today.toISOString().split("T")[0];
 
-// LOAD CURRENT DEVOTION
-devotion.value = localStorage.getItem("devotion-"+dateKey) || "";
-prayer.value = localStorage.getItem("prayer-"+dateKey) || "";
-
-// SAVE FUNCTIONS
-function saveDevotion(){
-  localStorage.setItem("devotion-"+dateKey, devotion.value);
-  alert("Devotion saved 🙏");
+// LOAD TODAY DEVOTION
+function loadCurrentDevotion(){
+  devotion.value = localStorage.getItem("devotion-"+currentKey) || "";
+  prayer.value = localStorage.getItem("prayer-"+currentKey) || "";
 }
-function savePrayer(){
-  localStorage.setItem("prayer-"+dateKey, prayer.value);
-  alert("Prayer saved 🙏");
+loadCurrentDevotion();
+
+// SAVE CURRENT DEVOTION
+function saveCurrent(){
+  localStorage.setItem("devotion-"+currentKey, devotion.value);
+  localStorage.setItem("prayer-"+currentKey, prayer.value);
+  alert("Devotion & Prayer saved 🙏");
 }
 
 // CALENDAR NAVIGATION
-let currentMonth = today.getMonth(); // 0-11
+let currentMonth = today.getMonth();
 let currentYear = today.getFullYear();
 
 function renderCalendar(month, year){
@@ -293,61 +292,45 @@ function renderCalendar(month, year){
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   monthYear.innerText = `${monthNames[month]} ${year}`;
 
-  const firstDay = new Date(year,month,1).getDay(); // 0-6
+  const firstDay = new Date(year,month,1).getDay();
   const daysInMonth = new Date(year,month+1,0).getDate();
 
-  // Add empty slots
-  for(let i=0;i<firstDay;i++){
-    const empty = document.createElement("div");
-    calendarDiv.appendChild(empty);
-  }
-
+  for(let i=0;i<firstDay;i++){calendarDiv.appendChild(document.createElement("div"));}
   for(let i=1;i<=daysInMonth;i++){
     const btn = document.createElement("button");
     btn.innerText=i;
-    btn.onclick=()=>{
-      viewDay(month, i, year);
-    };
+    btn.onclick=()=>selectDay(month,i,year);
     calendarDiv.appendChild(btn);
   }
 }
 
-// VIEW DEVOTION OF SELECTED DAY
-function viewDay(month, dayNum, year){
-  const prevDiv = document.getElementById("prevDevotions");
+function selectDay(month, dayNum, year){
   const selectedDate = new Date(year,month,dayNum);
-  const key = selectedDate.toISOString().split("T")[0];
-  const devotionText = localStorage.getItem("devotion-"+key) || "(No devotion written)";
-  const prayerText = localStorage.getItem("prayer-"+key) || "(No prayer written)";
-  const diffDays = Math.floor((selectedDate - startDate)/(1000*60*60*24))+1;
+  currentKey = selectedDate.toISOString().split("T")[0];
+  devotion.value = localStorage.getItem("devotion-"+currentKey) || "";
+  prayer.value = localStorage.getItem("prayer-"+currentKey) || "";
+  const diffDays = Math.floor((selectedDate-startDate)/(1000*60*60*24))+1;
   const verseText = `"${verses[(diffDays-1)%365].text}" — ${verses[(diffDays-1)%365].ref}`;
-  prevDiv.innerHTML = `<strong>${selectedDate.toDateString()} — Day ${diffDays}</strong><br>
+  document.getElementById("prevDevotions").innerHTML = `<strong>${selectedDate.toDateString()} — Day ${diffDays}</strong><br>
   📖 Verse: ${verseText}<br>
-  📖 Devotion: ${devotionText}<br>
-  🙏 Prayer: ${prayerText}`;
+  📖 Devotion: ${devotion.value}<br>
+  🙏 Prayer: ${prayer.value}`;
 }
 
-// MONTH NAVIGATION
+// MONTH NAVIGATION BUTTONS
 document.getElementById("prevMonth").onclick = ()=>{
   currentMonth--;
-  if(currentMonth<0){
-    currentMonth=11;
-    currentYear--;
-  }
+  if(currentMonth<0){currentMonth=11; currentYear--;}
   renderCalendar(currentMonth,currentYear);
 }
 document.getElementById("nextMonth").onclick = ()=>{
   currentMonth++;
-  if(currentMonth>11){
-    currentMonth=0;
-    currentYear++;
-  }
+  if(currentMonth>11){currentMonth=0; currentYear++;}
   renderCalendar(currentMonth,currentYear);
 }
 
 // INITIAL RENDER
 renderCalendar(currentMonth,currentYear);
-
 </script>
 </body>
 </html>
