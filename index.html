@@ -17,24 +17,24 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:25px;
+  padding:20px;
 }
 
 h1{text-align:center;font-weight:300}
-.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
+.subtitle{text-align:center;opacity:.8;margin-bottom:15px}
 
 .card{
   background:rgba(255,255,255,0.08);
   padding:20px;
   border-radius:16px;
-  margin-bottom:25px;
+  margin-bottom:20px;
   backdrop-filter:blur(10px);
 }
 
 .datetime{
   text-align:center;
   font-size:18px;
-  line-height:1.6;
+  margin-bottom:10px;
 }
 
 .verse{
@@ -46,14 +46,14 @@ h1{text-align:center;font-weight:300}
 
 .verse span{
   display:block;
-  margin-top:8px;
+  margin-top:6px;
   font-size:14px;
   opacity:.8;
 }
 
 .counter{
   text-align:center;
-  font-size:26px;
+  font-size:24px;
   margin-top:10px;
 }
 
@@ -63,7 +63,7 @@ h1{text-align:center;font-weight:300}
   background:rgba(255,255,255,0.2);
   border-radius:10px;
   overflow:hidden;
-  margin-top:15px;
+  margin-top:10px;
 }
 
 .progress{
@@ -74,27 +74,61 @@ h1{text-align:center;font-weight:300}
 
 textarea{
   width:100%;
-  min-height:140px;
+  min-height:120px;
   background:rgba(0,0,0,0.35);
   border:none;
   border-radius:12px;
-  padding:15px;
+  padding:12px;
   color:#fff;
   font-size:16px;
   resize:none;
 }
 
 button{
-  margin-top:15px;
-  padding:12px 22px;
+  margin-top:10px;
+  padding:10px 18px;
   background:#f1c40f;
   border:none;
-  border-radius:30px;
+  border-radius:25px;
   cursor:pointer;
-  font-size:15px;
+  font-size:14px;
 }
 
 .music{text-align:center}
+
+.calendar-container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.calendar-nav{
+  display:flex;
+  justify-content:space-between;
+  width:100%;
+  margin-bottom:10px;
+}
+
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  width:100%;
+}
+
+.calendar button{
+  padding:10px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+  cursor:pointer;
+  font-weight:500;
+}
+
+.calendar button:hover{
+  background:rgba(241,196,15,0.8);
+  color:#000;
+}
 
 .previous-devotions{
   max-height:250px;
@@ -108,23 +142,11 @@ button{
   border-radius:10px;
 }
 
-.calendar{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.calendar button{
-  flex:1 0 40px;
-  padding:8px;
-  font-size:14px;
-  border-radius:8px;
-}
 footer{
   text-align:center;
   font-size:13px;
   opacity:.7;
-  margin-top:40px;
+  margin-top:20px;
 }
 </style>
 </head>
@@ -132,7 +154,7 @@ footer{
 <div class="container">
 
 <h1>🙏 365 Days Devotion & Prayer</h1>
-<p class="subtitle">Real-time daily walk with God</p>
+<p class="subtitle">Spiritual calendar & daily walk with God</p>
 
 <!-- DATE & TIME -->
 <div class="card">
@@ -153,31 +175,37 @@ footer{
   </div>
 </div>
 
-<!-- DEVOTION -->
+<!-- DEVOTION & PRAYER -->
 <div class="card">
   <h2>📖 Devotion</h2>
   <textarea id="devotion" placeholder="Write today’s devotion or S.O.A.P reflection..."></textarea>
   <button onclick="saveDevotion()">Save Devotion</button>
 </div>
 
-<!-- PRAYER -->
 <div class="card">
   <h2>🙏 Prayer</h2>
   <textarea id="prayer" placeholder="Write your prayer today..."></textarea>
   <button onclick="savePrayer()">Save Prayer</button>
 </div>
 
-<!-- CALENDAR TO VIEW DEVOTIONS -->
+<!-- CALENDAR -->
 <div class="card">
-  <h2>📆 Review Devotions by Day</h2>
-  <div class="calendar" id="calendar"></div>
+  <h2>📆 Calendar Review</h2>
+  <div class="calendar-container">
+    <div class="calendar-nav">
+      <button id="prevMonth">&lt; Prev</button>
+      <strong id="monthYear"></strong>
+      <button id="nextMonth">Next &gt;</button>
+    </div>
+    <div class="calendar" id="calendar"></div>
+  </div>
 </div>
 
-<!-- PREVIOUS DEVOTIONS -->
+<!-- PREVIOUS DEVOTION DISPLAY -->
 <div class="card">
   <h2>📚 Selected Day Devotion</h2>
   <div class="previous-devotions" id="prevDevotions">
-    Click a day above to view its devotion.
+    Click a day to view devotion & prayer.
   </div>
 </div>
 
@@ -199,7 +227,7 @@ footer{
 // START DATE
 const startDate = new Date("2026-01-01");
 
-// 365 VERSES (sample first 10, repeat for 365)
+// 365 VERSES (sample first 10, repeat to fill 365)
 const verses = [
 { text:"Commit your way to the Lord; trust in Him and He will act.", ref:"Psalm 37:5" },
 { text:"The Lord is my shepherd; I shall not want.", ref:"Psalm 23:1" },
@@ -212,8 +240,6 @@ const verses = [
 { text:"The steadfast love of the Lord never ceases.", ref:"Lamentations 3:22" },
 { text:"Your word is a lamp to my feet.", ref:"Psalm 119:105" }
 ];
-
-// Fill up to 365 by repeating
 while(verses.length<365) verses.push(...verses);
 
 // REAL-TIME CLOCK
@@ -226,27 +252,27 @@ function updateDateTime(){
 setInterval(updateDateTime,1000);
 updateDateTime();
 
-// TODAY DAY
+// CALCULATE TODAY DAY
 const today = new Date();
 let day = Math.floor((today - startDate)/(1000*60*60*24)) +1;
 if(day<1) day=1;
 if(day>365) day=365;
 
-// DISPLAY DAY
+// DISPLAY PROGRESS
 document.getElementById("dayCounter").innerText = `Day ${day} of 365`;
 document.getElementById("progress").style.width = (day/365*100)+"%";
 
-// VERSE
+// DISPLAY VERSE OF THE DAY
 document.getElementById("verseText").innerHTML = `"${verses[(day-1)%365].text}"<span>— ${verses[(day-1)%365].ref}</span>`;
 
 // STORAGE KEY
 const dateKey = today.toISOString().split("T")[0];
 
-// LOAD CURRENT
+// LOAD CURRENT DEVOTION
 devotion.value = localStorage.getItem("devotion-"+dateKey) || "";
 prayer.value = localStorage.getItem("prayer-"+dateKey) || "";
 
-// SAVE
+// SAVE FUNCTIONS
 function saveDevotion(){
   localStorage.setItem("devotion-"+dateKey, devotion.value);
   alert("Devotion saved 🙏");
@@ -256,28 +282,72 @@ function savePrayer(){
   alert("Prayer saved 🙏");
 }
 
-// BUILD CALENDAR
-const calendarDiv = document.getElementById("calendar");
-for(let i=1;i<=365;i++){
-  const btn = document.createElement("button");
-  btn.innerText=i;
-  btn.onclick=()=>viewDay(i);
-  calendarDiv.appendChild(btn);
+// CALENDAR NAVIGATION
+let currentMonth = today.getMonth(); // 0-11
+let currentYear = today.getFullYear();
+
+function renderCalendar(month, year){
+  const calendarDiv = document.getElementById("calendar");
+  calendarDiv.innerHTML = "";
+  const monthYear = document.getElementById("monthYear");
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  monthYear.innerText = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year,month,1).getDay(); // 0-6
+  const daysInMonth = new Date(year,month+1,0).getDate();
+
+  // Add empty slots
+  for(let i=0;i<firstDay;i++){
+    const empty = document.createElement("div");
+    calendarDiv.appendChild(empty);
+  }
+
+  for(let i=1;i<=daysInMonth;i++){
+    const btn = document.createElement("button");
+    btn.innerText=i;
+    btn.onclick=()=>{
+      viewDay(month, i, year);
+    };
+    calendarDiv.appendChild(btn);
+  }
 }
 
 // VIEW DEVOTION OF SELECTED DAY
-function viewDay(dayNum){
+function viewDay(month, dayNum, year){
   const prevDiv = document.getElementById("prevDevotions");
-  const dayDate = new Date(startDate.getTime() + (dayNum-1)*24*60*60*1000);
-  const key = dayDate.toISOString().split("T")[0];
+  const selectedDate = new Date(year,month,dayNum);
+  const key = selectedDate.toISOString().split("T")[0];
   const devotionText = localStorage.getItem("devotion-"+key) || "(No devotion written)";
   const prayerText = localStorage.getItem("prayer-"+key) || "(No prayer written)";
-  const verseText = `"${verses[(dayNum-1)%365].text}" — ${verses[(dayNum-1)%365].ref}`;
-  prevDiv.innerHTML = `<strong>Day ${dayNum} — ${dayDate.toDateString()}</strong><br>
+  const diffDays = Math.floor((selectedDate - startDate)/(1000*60*60*24))+1;
+  const verseText = `"${verses[(diffDays-1)%365].text}" — ${verses[(diffDays-1)%365].ref}`;
+  prevDiv.innerHTML = `<strong>${selectedDate.toDateString()} — Day ${diffDays}</strong><br>
   📖 Verse: ${verseText}<br>
   📖 Devotion: ${devotionText}<br>
   🙏 Prayer: ${prayerText}`;
 }
+
+// MONTH NAVIGATION
+document.getElementById("prevMonth").onclick = ()=>{
+  currentMonth--;
+  if(currentMonth<0){
+    currentMonth=11;
+    currentYear--;
+  }
+  renderCalendar(currentMonth,currentYear);
+}
+document.getElementById("nextMonth").onclick = ()=>{
+  currentMonth++;
+  if(currentMonth>11){
+    currentMonth=0;
+    currentYear++;
+  }
+  renderCalendar(currentMonth,currentYear);
+}
+
+// INITIAL RENDER
+renderCalendar(currentMonth,currentYear);
+
 </script>
 </body>
 </html>
